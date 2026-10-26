@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react'
-import { UncontrolledAlert } from 'reactstrap'
+import { useEffect, useRef, useState } from 'react'
+import { Alert, Badge, Col, Row, UncontrolledAlert } from 'reactstrap'
+import BandejaReserva from './components/BandejaReserva'
+import MenuDelDia from './components/MenuDelDia'
 import {
   agregarAlimento,
   actualizarPorciones,
@@ -27,6 +29,9 @@ function App() {
   })
   const [cargando, setCargando] = useState(false)
   const [error, setError] = useState('')
+  const [tiempoRestante, setTiempoRestante] = useState(null)
+  const [reservaExpirada, setReservaExpirada] = useState(false)
+  const expiracionProcesada = useRef(null)
 
   useEffect(() => {
     setCargando(true)
@@ -34,6 +39,49 @@ function App() {
       .catch((error) => setError(error.message))
       .finally(() => setCargando(false))
   }, [])
+
+  useEffect(() => {
+    if (!reserva.expiraEn) {
+      setTiempoRestante(null)
+      expiracionProcesada.current = null
+      return
+    }
+
+    function actualizarContador() {
+      const segundos = Math.max(
+        0,
+        Math.ceil((reserva.expiraEn - Date.now()) / 1000),
+      )
+      setTiempoRestante(segundos)
+
+      if (segundos === 0) {
+        if (expiracionProcesada.current !== reserva.expiraEn) {
+          expiracionProcesada.current = reserva.expiraEn
+          setReservaExpirada(true)
+          setCargando(true)
+          cargarDatos(setMenu, setReserva)
+            .catch((error) => setError(error.message))
+            .finally(() => setCargando(false))
+        }
+
+        return true
+      }
+
+      return false
+    }
+
+    if (actualizarContador()) {
+      return undefined
+    }
+
+    const intervalo = setInterval(() => {
+      if (actualizarContador()) {
+        clearInterval(intervalo)
+      }
+    }, 1000)
+
+    return () => clearInterval(intervalo)
+  }, [reserva.expiraEn])
 
   function ejecutarAccion(peticion) {
     setCargando(true)
@@ -46,6 +94,7 @@ function App() {
   }
 
   function agregar(alimentoId, cantidad = 1) {
+    setReservaExpirada(false)
     return ejecutarAccion(agregarAlimento(alimentoId, cantidad))
   }
 
@@ -57,10 +106,46 @@ function App() {
     return ejecutarAccion(eliminarAlimento(id))
   }
 
+  const saldoDisponible = reserva.saldo - reserva.total
+  const minutos = Math.floor((tiempoRestante || 0) / 60)
+  const segundos = (tiempoRestante || 0) % 60
+
   return (
     <main className="container py-4">
       {error && <UncontrolledAlert color="warning">{error}</UncontrolledAlert>}
+      <Alert color="info" className="d-flex justify-content-between">
+        <span>Tu saldo actual: ${saldoDisponible.toFixed(2)}</span>
+        <span>
+          Total de tu Reserva{' '}
+          <Badge color="dark" pill>${reserva.total.toFixed(2)}</Badge>
+        </span>
+      </Alert>
+
+      {reservaExpirada && (
+        <Alert color="warning">Tu reserva expiró, iníciala nuevamente</Alert>
+      )}
+      {tiempoRestante > 0 && (
+        <p>
+          Tiempo restante: {String(minutos).padStart(2, '0')}:
+          {String(segundos).padStart(2, '0')}
+        </p>
+      )}
       {cargando && <p>Cargando...</p>}
+
+      <Row>
+        <Col xs="12" md="6">
+          <MenuDelDia menu={menu} onAgregar={agregar} cargando={cargando} />
+        </Col>
+        <Col xs="12" md="6">
+          <BandejaReserva
+            items={reserva.itemsReservados}
+            menu={menu}
+            onCambiarCantidad={cambiarCantidad}
+            onQuitar={quitar}
+            cargando={cargando}
+          />
+        </Col>
+      </Row>
     </main>
   )
 }
