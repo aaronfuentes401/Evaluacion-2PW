@@ -36,6 +36,11 @@ app.post("/guess", (req, res) => {
   res.json({ resultado: "menor", mensaje: `El número oculto es menor que ${numero}` });
 });
 
+app.post("/reset", (req, res) => {
+  numeroSecreto = generarNumero();
+  res.json({ mensaje: "Nuevo número generado" });
+});
+
 const PORT = 3001;
 
 app.listen(PORT, () => {
