@@ -1,4 +1,4 @@
-// Inventario de platos del día en momeoria el stock cambia al reservar
+// Inventario de platos del día (en memoria). El stock cambia al reservar.
 const menu = [
   { id: 101, nombre: "Menú Ejecutivo (Pollo)", precio: 5.5, stock: 12, categoria: "Fuerte" },
   { id: 102, nombre: "Pasta Alfredo", precio: 4.75, stock: 8, categoria: "Fuerte" },

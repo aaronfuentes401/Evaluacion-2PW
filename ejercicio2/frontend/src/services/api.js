@@ -1,59 +1,51 @@
-const API_URL = 'http://localhost:3002/api'
+const BASE_URL = 'http://localhost:3002'
 
-async function solicitar(ruta, opciones = {}) {
-  const respuesta = await fetch(`${API_URL}${ruta}`, {
-    ...opciones,
-    headers: {
-      'Content-Type': 'application/json',
-      ...opciones.headers,
-    },
+function procesarRespuesta(res) {
+  return res.json().then((data) => {
+    if (!res.ok) {
+      throw new Error(data.mensaje)
+    }
+
+    return data
   })
-
-  const data = await respuesta.json()
-
-  if (!respuesta.ok) {
-    throw new Error(data.mensaje || 'No se pudo completar la petición.')
-  }
-
-  return data
 }
 
 export function obtenerMenu() {
-  return solicitar('/menu')
+  return fetch(`${BASE_URL}/api/menu`)
+    .then(procesarRespuesta)
+    .catch((error) => Promise.reject(error))
 }
 
 export function obtenerReserva() {
-  return solicitar('/reserva')
+  return fetch(`${BASE_URL}/api/reserva`)
+    .then(procesarRespuesta)
+    .catch((error) => Promise.reject(error))
 }
 
-export async function obtenerDatos() {
-  const menu = await obtenerMenu()
-  const reserva = await obtenerReserva()
-  return { menu, reserva }
-}
-
-export function agregarAlimento(alimentoId, cantidad = 1) {
-  return solicitar('/reserva/agregar', {
+export function agregarAlimento(alimentoId, cantidad) {
+  return fetch(`${BASE_URL}/api/reserva/agregar`, {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ alimentoId, cantidad }),
   })
+    .then(procesarRespuesta)
+    .catch((error) => Promise.reject(error))
 }
 
 export function actualizarPorciones(id, cantidad) {
-  return solicitar(`/reserva/actualizar-porciones/${id}`, {
+  return fetch(`${BASE_URL}/api/reserva/actualizar-porciones/${id}`, {
     method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cantidad }),
   })
+    .then(procesarRespuesta)
+    .catch((error) => Promise.reject(error))
 }
 
 export function eliminarAlimento(id) {
-  return solicitar(`/reserva/eliminar/${id}`, {
+  return fetch(`${BASE_URL}/api/reserva/eliminar/${id}`, {
     method: 'DELETE',
   })
-}
-
-export function confirmarReserva() {
-  return solicitar('/reserva/confirmar', {
-    method: 'POST',
-  })
+    .then(procesarRespuesta)
+    .catch((error) => Promise.reject(error))
 }

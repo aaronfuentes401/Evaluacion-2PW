@@ -1,7 +1,7 @@
 const menu = require("./menu");
 
-// Estado de la reserva del usuario en memoria
-// itemsReservados solo guarda { id, cantidad }; el nombre y el precio salen del menú
+// Estado de la reserva del usuario (en memoria).
+// itemsReservados solo guarda { id, cantidad }; el nombre y el precio salen del menú.
 const reserva = {
   saldo: 25.0,
   itemsReservados: [],
