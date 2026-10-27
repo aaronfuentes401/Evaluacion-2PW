@@ -45,7 +45,7 @@ function App() {
       ])
       setMensaje(
         resultado === 'correcto'
-          ? '¡Correcto! Adivinaste el número.'
+          ? `¡Correcto! El número secreto era: ${Number(numero)}.`
           : `El número secreto es ${resultado}.`,
       )
       setGano(resultado === 'correcto')
@@ -135,7 +135,7 @@ function App() {
                 <strong className="game__attempt-label">Intento {index + 1}:</strong>{' '}
                 <strong className="game__hint">
                   {intento.resultado === 'correcto'
-                    ? '¡Correcto! Adivinaste el número.'
+                    ? `¡Correcto! El número secreto era: ${intento.numero}.`
                     : `El número secreto es ${intento.resultado} que ${intento.numero}.`}
                 </strong>
               </li>
