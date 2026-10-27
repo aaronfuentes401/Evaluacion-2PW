@@ -1,16 +1,32 @@
-# React + Vite
+# Ejercicio 2: Frontend Food DEI
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Este frontend usa React, Reactstrap y Bootstrap. El backend debe ejecutarse en
+`http://localhost:3002`. Los componentes del catálogo y la bandeja están en
+`src/components/`:
 
-Currently, two official plugins are available:
+- `MenuDelDia` recibe `menu`, `onAgregar` y `cargando`. Al pulsar **Añadir a la
+  Reserva**, invoca `onAgregar(idDelPlato)`. Si el stock es cero, muestra
+  **Agotado** y deshabilita el botón.
+- `BandejaReserva` recibe `items`, `menu`, `onCambiarCantidad`, `onQuitar` y
+  `cargando`. Invoca `onCambiarCantidad(idDelPlato, nuevaCantidad)` al usar
+  `−`/`+`, y `onQuitar(idDelPlato)` al quitarlo. `items` contiene elementos
+  `{ id, cantidad }`.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Los handlers pertenecen a `App.jsx`: deben llamar a los endpoints de reserva y,
+cuando la petición finalice correctamente, actualizar/cargar nuevamente el
+menú y la reserva. El componente recibe `cargando` para bloquear acciones
+mientras esas peticiones están en curso.
 
-## React Compiler
+La reserva puede confirmarse con el botón **Confirmar reserva**. Al confirmarla,
+el backend descuenta su total del saldo, vacía la bandeja y conserva el stock
+reservado. La reserva sin confirmar vence a los cinco minutos; el backend libera
+el stock y la interfaz avisa que se debe iniciar otra vez.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Ejecutar
 
-## Expanding the Oxlint configuration
+En una terminal, desde esta carpeta:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+```sh
+npm ci
+npm run dev
+```

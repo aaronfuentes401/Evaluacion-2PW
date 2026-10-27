@@ -180,6 +180,25 @@ async function ejecutar() {
     obtenerStock(menuFinal, 102) === 8
   );
 
+  const agregarParaConfirmar = await peticion(
+    "/reserva/agregar", "POST",
+    { alimentoId: 101, cantidad: 1 }
+  );
+  const confirmar = await peticion("/reserva/confirmar", "POST");
+  const reservaConfirmada = (await peticion("/reserva")).datos;
+  const menuConfirmado = (await peticion("/menu")).datos;
+
+  verificar(
+    "Confirmar descuenta el saldo y conserva el stock reservado",
+    agregarParaConfirmar.status === 201 &&
+    confirmar.status === 200 &&
+    reservaConfirmada.saldo === 19.5 &&
+    reservaConfirmada.itemsReservados.length === 0 &&
+    reservaConfirmada.total === 0 &&
+    reservaConfirmada.expiraEn === null &&
+    obtenerStock(menuConfirmado, 101) === 11
+  );
+
   console.log("\nRESULTADOS");
   console.log(`Correctas: ${correctas}`);
   console.log(`Fallidas: ${fallidas}`);
