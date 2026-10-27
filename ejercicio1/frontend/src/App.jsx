@@ -77,15 +77,17 @@ function App() {
   return (
     <main className="game">
       <header className="game__header">
-        <img className="game__logo" src={logoAdivina} alt="Logo de Adivina el número" />
-        <h1>Adivina el número</h1>
+        <div className="game__title">
+          <img className="game__logo" src={logoAdivina} alt="Logo de Adivina el número" />
+          <h1>Adivina el número</h1>
+        </div>
         <p>Estoy pensando en un número del 1 al 100.</p>
       </header>
 
       <section className="game__panel" aria-labelledby="guess-heading">
-        <h2 id="guess-heading">¿Cuál es tu intento?</h2>
+        <h2 id="guess-heading">Tu intento</h2>
         <form className="guess-form" onSubmit={enviarIntento}>
-          <label htmlFor="numero">Número</label>
+          <label className="visually-hidden" htmlFor="numero">Número</label>
           <div className="guess-form__controls">
             <input
               id="numero"
@@ -127,14 +129,17 @@ function App() {
         {intentos.length === 0 ? (
           <p>Aún no has realizado intentos.</p>
         ) : (
-          <ol>
+          <ul>
             {intentos.map((intento, index) => (
               <li key={`${index}-${intento.numero}`}>
-                <span>Intento {index + 1}: {intento.numero}</span>
-                <strong>{intento.resultado}</strong>
+                <strong>Intento {index + 1}:</strong>{' '}
+                <strong>{intento.numero}</strong>{' '}
+                {intento.resultado === 'correcto'
+                  ? '¡Correcto! Adivinaste el número.'
+                  : `El número secreto es ${intento.resultado}.`}
               </li>
             ))}
-          </ol>
+          </ul>
         )}
       </section>
     </main>
