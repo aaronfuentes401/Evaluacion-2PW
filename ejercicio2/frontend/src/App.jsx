@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { Alert, Badge, Col, Row, UncontrolledAlert } from 'reactstrap'
+import { Alert, Badge, Button, Col, Row, UncontrolledAlert } from 'reactstrap'
 import BandejaReserva from './components/BandejaReserva'
 import MenuDelDia from './components/MenuDelDia'
 import {
   agregarAlimento,
   actualizarPorciones,
+  confirmarReserva,
   eliminarAlimento,
   obtenerMenu,
   obtenerReserva,
@@ -106,6 +107,10 @@ function App() {
     return ejecutarAccion(eliminarAlimento(id))
   }
 
+  function confirmar() {
+    return ejecutarAccion(confirmarReserva())
+  }
+
   const saldoDisponible = reserva.saldo - reserva.total
   const minutos = Math.floor((tiempoRestante || 0) / 60)
   const segundos = (tiempoRestante || 0) % 60
@@ -144,6 +149,16 @@ function App() {
             onQuitar={quitar}
             cargando={cargando}
           />
+          {reserva.itemsReservados.length > 0 && (
+            <Button
+              color="primary"
+              className="mt-3"
+              onClick={confirmar}
+              disabled={cargando}
+            >
+              Confirmar reserva
+            </Button>
+          )}
         </Col>
       </Row>
     </main>

@@ -49,3 +49,11 @@ export function eliminarAlimento(id) {
     .then(procesarRespuesta)
     .catch((error) => Promise.reject(error))
 }
+
+export function confirmarReserva() {
+  return fetch(`${BASE_URL}/api/reserva/confirmar`, {
+    method: 'POST',
+  })
+    .then(procesarRespuesta)
+    .catch((error) => Promise.reject(error))
+}
