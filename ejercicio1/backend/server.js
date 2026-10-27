@@ -1,4 +1,3 @@
-
 const express = require("express");
 const cors = require("cors");
 
@@ -7,10 +6,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Devuelve un número entero aleatorio entre 1 y 100
 function generarNumero() {
   return Math.floor(Math.random() * 100) + 1;
 }
 
+// Número oculto que el usuario debe adivinar (se genera al iniciar el servidor)
 let numeroSecreto = generarNumero();
 
 app.get("/", (req, res) => {
@@ -18,26 +19,26 @@ app.get("/", (req, res) => {
 });
 
 app.post("/guess", (req, res) => {
-  const { numero } = req.body || {};
+  const numero = Number(req.body?.numero);
 
   if (!Number.isInteger(numero) || numero < 1 || numero > 100) {
-    return res.status(400).json({
-      mensaje: "El número debe ser un entero entre 1 y 100",
-    });
+    return res.status(400).json({ mensaje: "Debes enviar un número entero entre 1 y 100" });
   }
 
   if (numero === numeroSecreto) {
-    return res.json({ resultado: "correcto" });
+    return res.json({ resultado: "correcto", mensaje: `¡Correcto! El número era ${numeroSecreto}` });
   }
 
-  return res.json({
-    resultado: numeroSecreto > numero ? "mayor" : "menor",
-  });
+  if (numeroSecreto > numero) {
+    return res.json({ resultado: "mayor", mensaje: `El número oculto es mayor que ${numero}` });
+  }
+
+  res.json({ resultado: "menor", mensaje: `El número oculto es menor que ${numero}` });
 });
 
 app.post("/reset", (req, res) => {
   numeroSecreto = generarNumero();
-  return res.json({ mensaje: "Se generó un nuevo número" });
+  res.json({ mensaje: "Nuevo número generado" });
 });
 
 const PORT = 3001;
