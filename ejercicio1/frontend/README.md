@@ -1,16 +1,22 @@
-# React + Vite
+# Ejercicio 1: Adivina el número
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Frontend de React para el juego del número secreto. El backend debe ejecutarse
+en `http://localhost:3001` y exponer estos endpoints:
 
-Currently, two official plugins are available:
+- `POST /guess`, con JSON `{ "numero": 42 }`. Debe responder con uno de estos
+  valores: `{ "resultado": "mayor" }`, `{ "resultado": "menor" }` o
+  `{ "resultado": "correcto" }`. `mayor` indica que el número secreto es mayor
+  que el intento.
+- `POST /reset`, que genera un número secreto nuevo y responde con JSON.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Los intentos válidos se guardan en el estado del juego; al ganar, el formulario
+se bloquea y se puede iniciar otra partida con **Jugar de nuevo**.
 
-## React Compiler
+## Ejecutar
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+En una terminal, desde esta carpeta:
 
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+```sh
+npm ci
+npm run dev
+```
