@@ -211,9 +211,27 @@ router.delete("/eliminar/:id", (req, res) => {
   });
 });
 
+router.post("/confirmar", (req, res) => {
+  if (reserva.itemsReservados.length === 0) {
+    return res.status(400).json({
+      mensaje: "No hay platillos en la reserva",
+    });
+  }
 
+  const total = calcularTotal();
+  reserva.saldo = Number((reserva.saldo - total).toFixed(2));
+  reserva.itemsReservados = [];
+  reserva.expiraEn = null;
 
-
-
+  return res.status(200).json({
+    mensaje: "Reserva confirmada correctamente",
+    reserva: {
+      saldo: reserva.saldo,
+      itemsReservados: reserva.itemsReservados,
+      total: calcularTotal(),
+      expiraEn: reserva.expiraEn,
+    },
+  });
+});
 
 module.exports = router;
