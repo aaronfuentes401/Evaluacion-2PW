@@ -1,121 +1,152 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useEffect, useRef, useState } from 'react'
+import { Alert, Badge, Col, Row, UncontrolledAlert } from 'reactstrap'
+import BandejaReserva from './components/BandejaReserva'
+import MenuDelDia from './components/MenuDelDia'
+import {
+  agregarAlimento,
+  actualizarPorciones,
+  eliminarAlimento,
+  obtenerMenu,
+  obtenerReserva,
+} from './services/api'
+
+function cargarDatos(setMenu, setReserva) {
+  return Promise.all([obtenerMenu(), obtenerReserva()]).then(
+    ([datosMenu, datosReserva]) => {
+      setMenu(datosMenu)
+      setReserva(datosReserva)
+    },
+  )
+}
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [menu, setMenu] = useState([])
+  const [reserva, setReserva] = useState({
+    saldo: 0,
+    itemsReservados: [],
+    total: 0,
+    expiraEn: null,
+  })
+  const [cargando, setCargando] = useState(false)
+  const [error, setError] = useState('')
+  const [tiempoRestante, setTiempoRestante] = useState(null)
+  const [reservaExpirada, setReservaExpirada] = useState(false)
+  const expiracionProcesada = useRef(null)
+
+  useEffect(() => {
+    setCargando(true)
+    cargarDatos(setMenu, setReserva)
+      .catch((error) => setError(error.message))
+      .finally(() => setCargando(false))
+  }, [])
+
+  useEffect(() => {
+    if (!reserva.expiraEn) {
+      setTiempoRestante(null)
+      expiracionProcesada.current = null
+      return
+    }
+
+    function actualizarContador() {
+      const segundos = Math.max(
+        0,
+        Math.ceil((reserva.expiraEn - Date.now()) / 1000),
+      )
+      setTiempoRestante(segundos)
+
+      if (segundos === 0) {
+        if (expiracionProcesada.current !== reserva.expiraEn) {
+          expiracionProcesada.current = reserva.expiraEn
+          setReservaExpirada(true)
+          setCargando(true)
+          cargarDatos(setMenu, setReserva)
+            .catch((error) => setError(error.message))
+            .finally(() => setCargando(false))
+        }
+
+        return true
+      }
+
+      return false
+    }
+
+    if (actualizarContador()) {
+      return undefined
+    }
+
+    const intervalo = setInterval(() => {
+      if (actualizarContador()) {
+        clearInterval(intervalo)
+      }
+    }, 1000)
+
+    return () => clearInterval(intervalo)
+  }, [reserva.expiraEn])
+
+  function ejecutarAccion(peticion) {
+    setCargando(true)
+    setError('')
+
+    return peticion
+      .then(() => cargarDatos(setMenu, setReserva))
+      .catch((error) => setError(error.message))
+      .finally(() => setCargando(false))
+  }
+
+  function agregar(alimentoId, cantidad = 1) {
+    setReservaExpirada(false)
+    return ejecutarAccion(agregarAlimento(alimentoId, cantidad))
+  }
+
+  function cambiarCantidad(id, cantidad) {
+    return ejecutarAccion(actualizarPorciones(id, cantidad))
+  }
+
+  function quitar(id) {
+    return ejecutarAccion(eliminarAlimento(id))
+  }
+
+  const saldoDisponible = reserva.saldo - reserva.total
+  const minutos = Math.floor((tiempoRestante || 0) / 60)
+  const segundos = (tiempoRestante || 0) % 60
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <main className="container py-4">
+      {error && <UncontrolledAlert color="warning">{error}</UncontrolledAlert>}
+      <Alert color="info" className="d-flex justify-content-between">
+        <span>Tu saldo actual: ${saldoDisponible.toFixed(2)}</span>
+        <span>
+          Total de tu Reserva{' '}
+          <Badge color="dark" pill>${reserva.total.toFixed(2)}</Badge>
+        </span>
+      </Alert>
 
-      <div className="ticks"></div>
+      {reservaExpirada && (
+        <Alert color="warning">Tu reserva expiró, iníciala nuevamente</Alert>
+      )}
+      {tiempoRestante > 0 && (
+        <p>
+          Tiempo restante: {String(minutos).padStart(2, '0')}:
+          {String(segundos).padStart(2, '0')}
+        </p>
+      )}
+      {cargando && <p>Cargando...</p>}
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      <Row>
+        <Col xs="12" md="6">
+          <MenuDelDia menu={menu} onAgregar={agregar} cargando={cargando} />
+        </Col>
+        <Col xs="12" md="6">
+          <BandejaReserva
+            items={reserva.itemsReservados}
+            menu={menu}
+            onCambiarCantidad={cambiarCantidad}
+            onQuitar={quitar}
+            cargando={cargando}
+          />
+        </Col>
+      </Row>
+    </main>
   )
 }
 
