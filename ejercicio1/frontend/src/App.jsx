@@ -1,121 +1,149 @@
 import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import logoAdivina from './assets/logo-adivina.svg'
 import './App.css'
 
+const API_URL = 'http://localhost:3001'
+
+async function solicitar(path, method, body) {
+  const response = await fetch(`${API_URL}${path}`, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    ...(body && { body: JSON.stringify(body) }),
+  })
+  const data = await response.json()
+  if (!response.ok) {
+    throw new Error(data.mensaje)
+  }
+  return data
+}
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [numero, setNumero] = useState('')
+  const [intentos, setIntentos] = useState([])
+  const [mensaje, setMensaje] = useState('')
+  const [gano, setGano] = useState(false)
+  const [cargando, setCargando] = useState(false)
+
+  async function enviarIntento(event) {
+    event.preventDefault()
+    setMensaje('')
+    setCargando(true)
+
+    try {
+      const data = await solicitar('/guess', 'POST', {
+        numero: Number(numero),
+      })
+      const resultado = data.resultado
+
+      if (!['mayor', 'menor', 'correcto'].includes(resultado)) {
+        throw new Error('El servidor devolvió una respuesta inesperada.')
+      }
+
+      setIntentos((anteriores) => [
+        ...anteriores,
+        { numero: Number(numero), resultado },
+      ])
+      setMensaje(
+        resultado === 'correcto'
+          ? `¡Correcto! El número secreto era: ${Number(numero)}.`
+          : `El número secreto es ${resultado}.`,
+      )
+      setGano(resultado === 'correcto')
+      setNumero('')
+    } catch (error) {
+      setMensaje(error.message)
+    } finally {
+      setCargando(false)
+    }
+  }
+
+  async function jugarDeNuevo() {
+    setMensaje('')
+    setCargando(true)
+
+    try {
+      await solicitar('/reset', 'POST')
+      setNumero('')
+      setIntentos([])
+      setGano(false)
+      setMensaje('Se inició una nueva partida. ¡Suerte!')
+    } catch (error) {
+      setMensaje(error.message)
+    } finally {
+      setCargando(false)
+    }
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <main className="game">
+      <header className="game__header">
+        <div className="game__title">
+          <img className="game__logo" src={logoAdivina} alt="Logo de Adivina el número" />
+          <h1>Adivina el número</h1>
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
+        <p>Estoy pensando en un número del 1 al 100.</p>
+      </header>
+
+      <section className="game__panel" aria-labelledby="guess-heading">
+        <h2 id="guess-heading">Tu intento</h2>
+        <form className="guess-form" onSubmit={enviarIntento}>
+          <label className="visually-hidden" htmlFor="numero">Número</label>
+          <div className="guess-form__controls">
+            <input
+              id="numero"
+              type="number"
+              min="1"
+              max="100"
+              step="1"
+              required
+              value={numero}
+              onChange={(event) => setNumero(event.target.value)}
+              disabled={gano || cargando}
+            />
+            <button type="submit" disabled={gano || cargando}>
+              {cargando ? 'Cargando...' : 'Enviar intento'}
+            </button>
+          </div>
+        </form>
+
+        {mensaje && (
+          <p className="game__message" role="status">
+            {mensaje}
           </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
+        )}
+
+        {gano && (
+          <button
+            className="game__reset"
+            type="button"
+            onClick={jugarDeNuevo}
+            disabled={cargando}
+          >
+            Jugar de nuevo
+          </button>
+        )}
       </section>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
+      <section className="game__history" aria-labelledby="history-heading">
+        <h2 id="history-heading">Historial de intentos</h2>
+        {intentos.length === 0 ? (
+          <p>Aún no has realizado intentos.</p>
+        ) : (
           <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
+            {intentos.map((intento, index) => (
+              <li key={`${index}-${intento.numero}`}>
+                <strong className="game__attempt-label">Intento {index + 1}:</strong>{' '}
+                <strong className="game__hint">
+                  {intento.resultado === 'correcto'
+                    ? `¡Correcto! El número secreto era: ${intento.numero}.`
+                    : `El número secreto es ${intento.resultado} que ${intento.numero}.`}
+                </strong>
+              </li>
+            ))}
           </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
+        )}
       </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+    </main>
   )
 }
 
