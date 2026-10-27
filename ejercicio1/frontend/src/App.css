@@ -61,6 +61,15 @@
   border: 1px solid #c5c9ce;
   border-radius: 0.5rem;
   font: inherit;
+  appearance: textfield;
+}
+
+.guess-form input::-webkit-inner-spin-button,
+.guess-form input::-webkit-outer-spin-button {
+  display: none;
+  margin: 0;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .guess-form button,
