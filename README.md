@@ -8,12 +8,12 @@
 
 ## 📋 Equipo de Desarrollo
 
-| Nombre | Carné | Rol |
-|--------|-------|-----|
-| Amy Ariadna Barraza Villacorta | 00012725 | Front 2: Ejercicio 1 frontend + componentes del Ejercicio 2 |
-| Pablo Antonio Brito Elías | 00179025 | Front 1: base del frontend del Ejercicio 2 |
-| Diego Gabriel Bonilla Comandari | 00147325 | Back 1: Ejercicio 1 backend + base del backend del Ejercicio 2 |
-| Aarón Enmanuel Fuentes Murillo | 00075925 | Back 2: endpoints de reserva y límite de tiempo |
+| Nombre | Carné |
+|--------|-------|
+| Amy Ariadna Barraza Villacorta | 00012725 |
+| Pablo Antonio Brito Elías | 00179025 |
+| Diego Gabriel Bonilla Comandari | 00147325 |
+| Aarón Enmanuel Fuentes Murillo | 00075925 |
 
 ---
 
