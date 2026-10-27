@@ -119,6 +119,15 @@
   color: #303b4b;
 }
 
+.game__history .game__attempt-label {
+  margin-right: 0.35rem;
+  color: #c62828;
+}
+
+.game__history .game__hint {
+  color: #5d6877;
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;

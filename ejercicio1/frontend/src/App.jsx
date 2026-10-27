@@ -132,11 +132,13 @@ function App() {
           <ul>
             {intentos.map((intento, index) => (
               <li key={`${index}-${intento.numero}`}>
-                <strong>Intento {index + 1}:</strong>{' '}
+                <strong className="game__attempt-label">Intento {index + 1}:</strong>{' '}
                 <strong>{intento.numero}</strong>{' '}
-                {intento.resultado === 'correcto'
-                  ? '¡Correcto! Adivinaste el número.'
-                  : `El número secreto es ${intento.resultado}.`}
+                <strong className="game__hint">
+                  {intento.resultado === 'correcto'
+                    ? '¡Correcto! Adivinaste el número.'
+                    : `El número secreto es ${intento.resultado}.`}
+                </strong>
               </li>
             ))}
           </ul>
