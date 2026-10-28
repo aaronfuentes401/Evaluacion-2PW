@@ -1,0 +1,175 @@
+#root {
+  min-height: 100vh;
+}
+
+.game {
+  width: min(100% - 2rem, 45rem);
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+
+.game__header {
+  margin-bottom: 2rem;
+}
+
+.game__title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.game__logo {
+  width: 5rem;
+  height: 5rem;
+  flex: 0 0 auto;
+}
+
+.game h1 {
+  margin: 0;
+  color: #25364a;
+  font-size: clamp(2rem, 7vw, 3rem);
+}
+
+.game__header p {
+  margin: 0.75rem 0 0;
+  color: #5d6877;
+  font-size: 1.2rem;
+}
+
+.game h2 {
+  margin: 0 0 0.75rem;
+  color: #25364a;
+  font-size: 1.25rem;
+}
+
+.game__panel {
+  padding: 1.5rem 2rem;
+  border: 1px solid #d5d9de;
+  border-radius: 1rem;
+  background: #fff;
+}
+
+.guess-form__controls {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.guess-form input {
+  width: 17rem;
+  max-width: 100%;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid #c5c9ce;
+  border-radius: 0.5rem;
+  font: inherit;
+  appearance: textfield;
+}
+
+.guess-form input::-webkit-inner-spin-button,
+.guess-form input::-webkit-outer-spin-button {
+  display: none;
+  margin: 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.guess-form button,
+.game__reset {
+  padding: 0.75rem 1rem;
+  border: 0;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.guess-form button {
+  background: #438d70;
+  color: #fff;
+}
+
+.game__reset {
+  margin-top: 1rem;
+  background: #f5df76;
+  color: #25364a;
+}
+
+.guess-form button:disabled,
+.game__reset:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.game__message {
+  margin: 1rem 0 0;
+  color: #376d5b;
+  font-weight: 700;
+}
+
+.game__history {
+  margin-top: 2rem;
+}
+
+.game__history ul {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  color: #5d6877;
+  font-size: 1.1rem;
+  list-style: none;
+}
+
+.game__history li {
+  padding-left: 0.15rem;
+  line-height: 1.6;
+}
+
+.game__history strong {
+  color: #303b4b;
+}
+
+.game__history .game__attempt-label {
+  margin-right: 0.35rem;
+  color: #c62828;
+}
+
+.game__history .game__hint {
+  color: #5d6877;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+@media (max-width: 480px) {
+  .game {
+    padding: 1.5rem 0;
+  }
+
+  .game__title {
+    gap: 0.75rem;
+  }
+
+  .game__logo {
+    width: 3.75rem;
+    height: 3.75rem;
+  }
+
+  .game__panel {
+    padding: 1.25rem;
+  }
+
+  .guess-form__controls {
+    flex-direction: column;
+  }
+
+  .guess-form input {
+    width: 100%;
+  }
+}
