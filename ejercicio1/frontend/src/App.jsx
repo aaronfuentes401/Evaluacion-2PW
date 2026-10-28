@@ -17,6 +17,16 @@ async function solicitar(path, method, body) {
   return data
 }
 
+function mensajeValidacion(input) {
+  if (input.validity.valueMissing) return 'Escribe un número antes de enviar.'
+  if (input.validity.badInput) return 'Escribe un número válido.'
+  if (input.validity.rangeUnderflow || input.validity.rangeOverflow) {
+    return 'El número debe estar entre 1 y 100.'
+  }
+  if (input.validity.stepMismatch) return 'Escribe un número entero, sin decimales.'
+  return ''
+}
+
 function App() {
   const [numero, setNumero] = useState('')
   const [intentos, setIntentos] = useState([])
@@ -97,7 +107,13 @@ function App() {
               step="1"
               required
               value={numero}
-              onChange={(event) => setNumero(event.target.value)}
+              onChange={(event) => {
+                event.target.setCustomValidity('')
+                setNumero(event.target.value)
+              }}
+              onInvalid={(event) =>
+                event.target.setCustomValidity(mensajeValidacion(event.target))
+              }
               disabled={gano || cargando}
             />
             <button type="submit" disabled={gano || cargando}>
