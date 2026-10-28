@@ -36,6 +36,11 @@ function App() {
 
   async function enviarIntento(event) {
     event.preventDefault()
+    const errorValidacion = mensajeValidacion(event.currentTarget.elements.numero)
+    if (errorValidacion) {
+      setMensaje(errorValidacion)
+      return
+    }
     setMensaje('')
     setCargando(true)
 
@@ -96,7 +101,7 @@ function App() {
 
       <section className="game__panel" aria-labelledby="guess-heading">
         <h2 id="guess-heading">Tu intento</h2>
-        <form className="guess-form" onSubmit={enviarIntento}>
+        <form className="guess-form" onSubmit={enviarIntento} noValidate>
           <label className="visually-hidden" htmlFor="numero">Número</label>
           <div className="guess-form__controls">
             <input
@@ -107,13 +112,7 @@ function App() {
               step="1"
               required
               value={numero}
-              onChange={(event) => {
-                event.target.setCustomValidity('')
-                setNumero(event.target.value)
-              }}
-              onInvalid={(event) =>
-                event.target.setCustomValidity(mensajeValidacion(event.target))
-              }
+              onChange={(event) => setNumero(event.target.value)}
               disabled={gano || cargando}
             />
             <button type="submit" disabled={gano || cargando}>
